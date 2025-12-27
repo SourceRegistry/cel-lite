@@ -1,2 +1,2 @@
 # cel-lite
-Lightweigt Common Expression Language
+Lightweight Common Expression Language

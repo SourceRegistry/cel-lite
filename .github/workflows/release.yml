@@ -1,0 +1,46 @@
+name: Release to NPM (cel-lite + monaco)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org/"
+
+      - name: Install dependencies (workspaces)
+        run: npm ci
+
+      - name: Run tests (root)
+        run: npm test
+
+      - name: Build root package (@sourceregistry/cel-lite)
+        run: npm run build
+
+      - name: Build monaco package (@sourceregistry/monaco-cel-lite)
+        run: npm --workspace @sourceregistry/monaco-cel-lite run build
+
+      # Release root package
+      - name: Semantic Release (cel-lite)
+        run: npx semantic-release
+
+      # Release monaco package (run from that package dir)
+      - name: Semantic Release (monaco-cel-lite)
+        working-directory: packages/monaco-cel-lite
+        run: npx semantic-release
