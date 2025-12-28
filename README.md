@@ -7,8 +7,6 @@ Google’s Common Expression Language (CEL), designed specifically for
 It is not a full CEL implementation — by design.
 CEL-lite focuses on **determinism, auditability, and sandbox safety**.
 
----
-
 ## ✨ Features
 
 - ✅ Expression evaluation (no side effects)
@@ -29,8 +27,6 @@ Designed for:
 - Policy preconditions
 - Safe multi-tenant configuration
 
----
-
 ## ❌ Explicitly NOT included
 
 CEL-lite intentionally does **not** support:
@@ -43,15 +39,11 @@ CEL-lite intentionally does **not** support:
 
 This keeps it safe to evaluate on **authentication paths**.
 
----
-
 ## 📦 Installation
 
 ```bash
 npm install @sourceregistry/cel-lite
 ````
-
----
 
 ## 🚀 Basic usage
 
@@ -99,8 +91,6 @@ saml.attributes["urn:mace:dir:attribute-def:mail"][0]
 
 Missing properties resolve to `undefined` (safe).
 
----
-
 ## 🧩 Built-in functions
 
 | Function                   | Description                   |
@@ -121,8 +111,6 @@ Missing properties resolve to `undefined` (safe).
 | `split(s, sep)`            | Split string                  |
 
 Only allow-listed functions are callable.
-
----
 
 ## 🔍 Explain / trace mode
 
@@ -148,8 +136,6 @@ Useful for:
 * debugging mappers
 * audit logging
 
----
-
 ## 🛡️ Safety guarantees
 
 CEL-lite enforces:
@@ -166,14 +152,10 @@ It is safe to run on:
 * onboarding pipelines
 * multi-tenant systems
 
----
-
 ## 📚 Related packages
 
 * **@sourceregistry/monaco-cel-lite**
   Monaco Editor language + IntelliSense for CEL-lite
-
----
 
 ## 📄 License
 
