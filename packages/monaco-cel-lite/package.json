@@ -12,7 +12,9 @@
       "require": "./dist/index.cjs.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -35,7 +37,9 @@
     "vite-plugin-dts": "^4.5.4"
   },
   "release": {
-    "branches": ["main"],
+    "branches": [
+      "main"
+    ],
     "tagFormat": "@sourceregistry/monaco-cel-lite-v${version}",
     "plugins": [
       "@semantic-release/commit-analyzer",
@@ -45,7 +49,10 @@
       [
         "@semantic-release/git",
         {
-          "assets": ["package.json", "CHANGELOG.md"],
+          "assets": [
+            "package.json",
+            "CHANGELOG.md"
+          ],
           "message": "monaco-cel-lite(release): 🚀 v${nextRelease.version}\n\n${nextRelease.notes}"
         }
       ]
