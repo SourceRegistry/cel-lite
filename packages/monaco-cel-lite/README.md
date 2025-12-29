@@ -11,9 +11,7 @@ This package adds:
 
 It does **not** bundle Monaco itself.
 
----
-
-## ✨ Features
+##  ✨ Features
 
 - CEL-lite syntax highlighting (Monarch)
 - Keyword, function, and symbol completion
@@ -22,9 +20,7 @@ It does **not** bundle Monaco itself.
 - Configurable context symbols (SAML, OIDC, claims, etc.)
 - Zero runtime dependencies
 
----
-
-## 📦 Installation
+##  📦 Installation
 
 ```bash
 npm install @sourceregistry/monaco-cel-lite
@@ -36,9 +32,7 @@ You must also install Monaco:
 npm install monaco-editor
 ```
 
----
-
-## 🚀 Basic usage
+##  🚀 Basic usage
 
 ```ts
 import * as monaco from "monaco-editor";
@@ -56,9 +50,7 @@ monaco.editor.create(container, {
 });
 ```
 
----
-
-## ⚙️ Configuration
+##  ⚙️ Configuration
 
 ```ts
 registerCelLite(monaco, {
@@ -82,9 +74,7 @@ registerCelLite(monaco, {
 | `functions`  | Function signatures for completion & docs |
 | `symbols`    | Context variables for completion          |
 
----
-
-## 🧠 Intended use-cases
+##  🧠 Intended use-cases
 
 * Identity Provider admin UIs
 * Attribute mapper editors
@@ -92,8 +82,6 @@ registerCelLite(monaco, {
 * Safe expression configuration interfaces
 
 CEL-lite expressions are **configuration**, not code.
-
----
 
 ## 🔄 Relationship to CEL-lite
 
@@ -106,8 +94,6 @@ For evaluation, use:
 import { compileCel } from "@sourceregistry/cel-lite";
 ```
 
----
-
 ## 🛡️ Design philosophy
 
 * No execution of user JavaScript
@@ -116,8 +102,6 @@ import { compileCel } from "@sourceregistry/cel-lite";
 * No Monaco bundling
 
 Safe by default.
-
----
 
 ## 📄 License
 
