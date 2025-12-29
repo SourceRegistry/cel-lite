@@ -20,7 +20,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "monaco-editor": "^0.52.0"
+    "monaco-editor": "^0.55.1"
   },
   "scripts": {
     "build": "tsc && vite build",
