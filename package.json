@@ -21,12 +21,12 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "lint": "tsc --noEmit",
-    "docs:build": "typedoc src/index.ts --out docs --name \"node-jwt\" --theme default --excludePrivate --excludeProtected",
+    "docs:build": "typedoc src/index.ts --out docs --name \"cel-lite\" --theme default --excludePrivate --excludeProtected",
     "examples/saml": "tsx examples/saml.example.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SourceRegistry/node-jwt.git"
+    "url": "git+https://github.com/SourceRegistry/cel-lite.git"
   },
   "keywords": [
     "CEL",
