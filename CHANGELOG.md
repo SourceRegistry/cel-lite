@@ -1,3 +1,11 @@
+## [1.0.1](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/cel-lite-v1.0.0...@sourceregistry/cel-lite-v1.0.1) (2025-12-29)
+
+
+### Bug Fixes
+
+* release and updated monaco peerDependencies ([a26e63d](https://github.com/SourceRegistry/cel-lite/commit/a26e63d7251fb340ec87876030743483b9ce78d9))
+* sync package-lock.json ([be50a4f](https://github.com/SourceRegistry/cel-lite/commit/be50a4f573d81f1d1038ca34c15a98e9ac839abd))
+
 # 1.0.0 (2025-12-29)
 
 
