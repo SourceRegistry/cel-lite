@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/monaco-cel-lite-v1.0.1...@sourceregistry/monaco-cel-lite-v1.1.0) (2026-01-27)
+
+
+### Features
+
+* added collect function ([5e0faf6](https://github.com/SourceRegistry/cel-lite/commit/5e0faf65fcb1e4ffaa6fe79c12e6aafa98a30f1b))
+
 ## [1.0.1](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/monaco-cel-lite-v1.0.0...@sourceregistry/monaco-cel-lite-v1.0.1) (2025-12-29)
 
 
