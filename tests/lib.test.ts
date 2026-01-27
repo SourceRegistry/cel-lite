@@ -175,6 +175,14 @@ describe("CEL-lite: functions", () => {
         expect(compileCel("split('a,b', ',')").eval({})).toEqual(["a", "b"]);
     });
 
+    it("collect()", () => {
+        expect(compileCel("collect('a','b','c')").eval({})).toEqual(["a", "b", "c"]);
+        expect(compileCel("collect(first(vals), first(vals), first(vals))").eval({ vals: ["x"] }))
+            .toEqual(["x", "x", "x"]);
+        expect(compileCel("collect('z')").eval({})).toEqual(["z"]);
+        expect(compileCel("collect(['z'])").eval({})).toEqual(["z"]);
+    });
+
     it("rejects unknown functions", () => {
         expect(() => compileCel("nope(1)").eval({})).toThrowError(/Function not allowed/);
     });

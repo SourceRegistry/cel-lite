@@ -22,7 +22,8 @@
     "test:coverage": "vitest run --coverage",
     "lint": "tsc --noEmit",
     "docs:build": "typedoc src/index.ts --out docs --name \"cel-lite\" --theme default --excludePrivate --excludeProtected",
-    "examples/saml": "tsx examples/saml.example.ts"
+    "examples/saml": "tsx examples/saml.example.ts",
+    "collect": "tsx examples/collect.example.ts"
   },
   "repository": {
     "type": "git",

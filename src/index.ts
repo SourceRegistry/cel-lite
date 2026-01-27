@@ -733,7 +733,14 @@ function callFunction(name: string | undefined, _receiver: any, args: any[], pos
             const x = args[0];
             return Array.isArray(x) ? x[x.length - 1] : x;
         }
-
+        case "collect": {
+            if (args.length <= 1) {
+                const x = args[0];
+                return Array.isArray(x) ? x : [x];
+            }
+            
+            return args;
+        }
         case "lower":
             return typeof args[0] === "string" ? args[0].toLowerCase() : args[0];
         case "upper":

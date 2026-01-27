@@ -40,6 +40,12 @@ const DEFAULT_FUNCS: CelLiteFunctionSig[] = [
         documentation: "First element of array; otherwise returns x.",
         params: ["x"]
     },
+    {
+        name: "collect",
+        detail: "collect(a, b, ...) -> any[]",
+        documentation: "Collects args into an array (single arg is wrapped if needed).",
+        params: ["a", "b", "..."]
+    },
 
     {name: "lower", detail: "lower(s) -> string", documentation: "Lowercase string.", params: ["s"]},
     {name: "upper", detail: "upper(s) -> string", documentation: "Uppercase string.", params: ["s"]},
@@ -111,7 +117,7 @@ export function registerCelLite(monaco: typeof import("monaco-editor"), opts: Re
 
     const languageId = opts.languageId ?? "cel-lite";
     const functions = opts.functions ?? DEFAULT_FUNCS;
-    const symbols = opts.symbols ?? defaultSymbols(monaco);
+    const symbols = opts.symbols ?? [] //?? defaultSymbols(monaco);
 
     // 1) Register language
     monaco.languages.register({id: languageId});
@@ -318,28 +324,28 @@ export function registerCelLite(monaco: typeof import("monaco-editor"), opts: Re
     };
 }
 
-function defaultSymbols(monaco: typeof import("monaco-editor")): CelLiteSymbol[] {
-    return [
-        {label: "saml", kind: monaco.languages.CompletionItemKind.Module, detail: "SAML context root"},
-        {
-            label: "saml.attributes",
-            kind: monaco.languages.CompletionItemKind.Property,
-            detail: "Map of SAML attribute -> string[]"
-        },
+// function defaultSymbols(monaco: typeof import("monaco-editor")): CelLiteSymbol[] {
+//     return [
+//         {label: "saml", kind: monaco.languages.CompletionItemKind.Module, detail: "SAML context root"},
+//         {
+//             label: "saml.attributes",
+//             kind: monaco.languages.CompletionItemKind.Property,
+//             detail: "Map of SAML attribute -> string[]"
+//         },
 
-        {label: "oidc", kind: monaco.languages.CompletionItemKind.Module, detail: "OIDC context root"},
-        {label: "oidc.claims", kind: monaco.languages.CompletionItemKind.Property, detail: "OIDC claims map"},
+//         {label: "oidc", kind: monaco.languages.CompletionItemKind.Module, detail: "OIDC context root"},
+//         {label: "oidc.claims", kind: monaco.languages.CompletionItemKind.Property, detail: "OIDC claims map"},
 
-        {label: "claim", kind: monaco.languages.CompletionItemKind.Variable, detail: "Mapped claims (output bag)"},
-        {
-            label: "attr",
-            kind: monaco.languages.CompletionItemKind.Variable,
-            detail: "Mapped custom attributes (output bag)"
-        },
+//         {label: "claim", kind: monaco.languages.CompletionItemKind.Variable, detail: "Mapped claims (output bag)"},
+//         {
+//             label: "attr",
+//             kind: monaco.languages.CompletionItemKind.Variable,
+//             detail: "Mapped custom attributes (output bag)"
+//         },
 
-        {label: "user", kind: monaco.languages.CompletionItemKind.Variable, detail: "Current user (read-only view)"},
-        {label: "provider", kind: monaco.languages.CompletionItemKind.Variable, detail: "IdentityProvider info"},
-        {label: "realm", kind: monaco.languages.CompletionItemKind.Variable, detail: "Realm info"},
-        {label: "session", kind: monaco.languages.CompletionItemKind.Variable, detail: "Session metadata"},
-    ];
-}
+//         {label: "user", kind: monaco.languages.CompletionItemKind.Variable, detail: "Current user (read-only view)"},
+//         {label: "provider", kind: monaco.languages.CompletionItemKind.Variable, detail: "IdentityProvider info"},
+//         {label: "realm", kind: monaco.languages.CompletionItemKind.Variable, detail: "Realm info"},
+//         {label: "session", kind: monaco.languages.CompletionItemKind.Variable, detail: "Session metadata"},
+//     ];
+// }
