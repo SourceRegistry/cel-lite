@@ -36,6 +36,12 @@
     "vite": "^7.1.12",
     "vite-plugin-dts": "^4.5.4"
   },
+  "keywords": [
+    "monaco",
+    "vscode-extension",
+    "cel-lite",
+    "cel"
+  ],
   "release": {
     "branches": [
       "main"
