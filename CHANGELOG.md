@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/cel-lite-v1.1.0...@sourceregistry/cel-lite-v1.1.1) (2026-01-27)
+
+
+### Bug Fixes
+
+* bump to release to npm ([8a09ede](https://github.com/SourceRegistry/cel-lite/commit/8a09ede578fb1b567e9da25020b91a99294e9c3a))
+
 # [1.1.0](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/cel-lite-v1.0.1...@sourceregistry/cel-lite-v1.1.0) (2026-01-27)
 
 
