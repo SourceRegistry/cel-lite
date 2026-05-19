@@ -46,7 +46,13 @@
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
-      "@semantic-release/npm",
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "node ../../scripts/semantic-release-version.mjs . ${nextRelease.version}",
+          "publishCmd": "npm publish --access public --provenance"
+        }
+      ],
       [
         "@semantic-release/git",
         {

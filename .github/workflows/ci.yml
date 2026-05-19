@@ -84,7 +84,7 @@ jobs:
         run: npm ci
 
       - name: Install release tooling
-        run: npm install --no-save --no-package-lock semantic-release @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/git @semantic-release/npm @semantic-release/release-notes-generator node-gyp
+        run: npm install --no-save --no-package-lock semantic-release @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/exec @semantic-release/git @semantic-release/release-notes-generator
 
       - name: Build root package
         run: npm run build
