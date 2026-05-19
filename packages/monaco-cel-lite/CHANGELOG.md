@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/monaco-cel-lite-v1.1.2...@sourceregistry/monaco-cel-lite-v1.1.3) (2026-05-19)
+
+
+### Bug Fixes
+
+* **monaco-cel-lite:** add provenance repository metadata ([0d2db10](https://github.com/SourceRegistry/cel-lite/commit/0d2db107dd975652d7da9b9dec48dd073ef28d88))
+
 ## [1.1.2](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/monaco-cel-lite-v1.1.1...@sourceregistry/monaco-cel-lite-v1.1.2) (2026-05-19)
 
 
