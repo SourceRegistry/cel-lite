@@ -13,6 +13,11 @@ export type CelOptions = {
     maxAstNodes?: number;         // default 2000
     maxCallDepth?: number;        // default 50
     maxTraceEntries?: number;     // default 5000 (avoid huge traces)
+    maxCollectionLength?: number; // default 10000
+    maxStringLength?: number;     // default 65536
+    maxCompareDepth?: number;     // default 50
+    maxRegexPatternLength?: number; // default 256
+    maxRegexInputLength?: number;   // default 4096
 };
 
 export type CelExplainEntry = {
@@ -63,6 +68,11 @@ export function compileCel(source: string, opts: CelOptions = {}): CelProgram {
         maxAstNodes: opts.maxAstNodes ?? 2000,
         maxCallDepth: opts.maxCallDepth ?? 50,
         maxTraceEntries: opts.maxTraceEntries ?? 5000,
+        maxCollectionLength: opts.maxCollectionLength ?? 10000,
+        maxStringLength: opts.maxStringLength ?? 65536,
+        maxCompareDepth: opts.maxCompareDepth ?? 50,
+        maxRegexPatternLength: opts.maxRegexPatternLength ?? 256,
+        maxRegexInputLength: opts.maxRegexInputLength ?? 4096,
     };
 
     if (source.length > options.maxExpressionLength) {
@@ -553,14 +563,13 @@ function evalExpr(expr: Expr, ctx: CelContext, st: EvalState): any {
             break;
 
         case "ident":
-            out = ctx[expr.name];
+            out = safeGet(ctx, expr.name);
             break;
 
         case "get": {
             const obj = evalExpr(expr.obj, ctx, st);
             if (obj == null) out = undefined;
-            else if (isPoisonKey(expr.prop)) out = undefined;
-            else out = obj[expr.prop];
+            else out = safeGet(obj, expr.prop);
             break;
         }
 
@@ -568,8 +577,8 @@ function evalExpr(expr: Expr, ctx: CelContext, st: EvalState): any {
             const obj = evalExpr(expr.obj, ctx, st);
             const idx = evalExpr(expr.index, ctx, st);
             if (obj == null) out = undefined;
-            else if (typeof idx === "number") out = obj[idx];
-            else if (typeof idx === "string") out = isPoisonKey(idx) ? undefined : obj[idx];
+            else if (typeof idx === "number") out = safeIndex(obj, idx);
+            else if (typeof idx === "string") out = safeGet(obj, idx);
             else out = undefined;
             break;
         }
@@ -596,10 +605,10 @@ function evalExpr(expr: Expr, ctx: CelContext, st: EvalState): any {
 
             switch (expr.op) {
                 case "==":
-                    out = deepEqual(left, right);
+                    out = deepEqual(left, right, st);
                     break;
                 case "!=":
-                    out = !deepEqual(left, right);
+                    out = !deepEqual(left, right, st);
                     break;
                 case "<":
                     out = Number(left) < Number(right);
@@ -617,7 +626,7 @@ function evalExpr(expr: Expr, ctx: CelContext, st: EvalState): any {
                     out = add(left, right);
                     break;
                 case "in":
-                    out = inOp(left, right);
+                    out = inOp(left, right, st);
                     break;
                 default:
                     throw new CelError(`Unknown binary op ${expr.op}`, expr.pos);
@@ -637,24 +646,26 @@ function evalExpr(expr: Expr, ctx: CelContext, st: EvalState): any {
                 throw new CelError(`Max call depth exceeded (>${st.opts.maxCallDepth})`, expr.pos);
             }
 
-            const callee = expr.callee;
+            try {
+                const callee = expr.callee;
 
-            let fnName: string | undefined;
-            let receiver: any = undefined;
+                let fnName: string | undefined;
+                let receiver: any = undefined;
 
-            if (callee.kind === "ident") {
-                fnName = callee.name;
-            } else if (callee.kind === "get") {
-                receiver = evalExpr(callee.obj, ctx, st);
-                fnName = callee.prop;
-            } else {
-                throw new CelError("Invalid function call target", expr.pos);
+                if (callee.kind === "ident") {
+                    fnName = callee.name;
+                } else if (callee.kind === "get") {
+                    receiver = evalExpr(callee.obj, ctx, st);
+                    fnName = callee.prop;
+                } else {
+                    throw new CelError("Invalid function call target", expr.pos);
+                }
+
+                const args = expr.args.map((a) => evalExpr(a, ctx, st));
+                out = callFunction(fnName, receiver, args, expr.pos, st);
+            } finally {
+                st.callDepth--;
             }
-
-            const args = expr.args.map((a) => evalExpr(a, ctx, st));
-            out = callFunction(fnName, receiver, args, expr.pos);
-
-            st.callDepth--;
             break;
         }
     }
@@ -672,29 +683,58 @@ function add(a: any, b: any) {
     return Number(a) + Number(b);
 }
 
-function inOp(needle: any, haystack: any): boolean {
-    if (Array.isArray(haystack)) return haystack.some((x) => deepEqual(x, needle));
+function inOp(needle: any, haystack: any, st: EvalState): boolean {
+    if (Array.isArray(haystack)) {
+        assertCollectionLength(haystack.length, st, "Array");
+        return haystack.some((x) => deepEqual(x, needle, st));
+    }
     if (typeof haystack === "string") return typeof needle === "string" ? haystack.includes(needle) : false;
-    if (haystack && typeof haystack === "object") return needle in haystack;
+    if (haystack && typeof haystack === "object" && typeof needle === "string") {
+        return isSafeKey(needle) && hasOwn(haystack, needle);
+    }
     return false;
 }
 
-function deepEqual(a: any, b: any): boolean {
+function deepEqual(a: any, b: any, st: EvalState): boolean {
+    return deepEqualInner(a, b, st, 0, new WeakMap<object, WeakSet<object>>());
+}
+
+function deepEqualInner(
+    a: any,
+    b: any,
+    st: EvalState,
+    depth: number,
+    seen: WeakMap<object, WeakSet<object>>,
+): boolean {
     if (a === b) return true;
     if (a == null || b == null) return a === b;
     if (typeof a !== typeof b) return false;
+    if (depth > st.opts.maxCompareDepth) throw new CelError(`Max compare depth exceeded (>${st.opts.maxCompareDepth})`);
 
     if (Array.isArray(a) && Array.isArray(b)) {
         if (a.length !== b.length) return false;
-        for (let i = 0; i < a.length; i++) if (!deepEqual(a[i], b[i])) return false;
+        assertCollectionLength(a.length, st, "Array");
+        for (let i = 0; i < a.length; i++) if (!deepEqualInner(a[i], b[i], st, depth + 1, seen)) return false;
         return true;
     }
 
     if (typeof a === "object" && typeof b === "object") {
+        let seenForA = seen.get(a);
+        if (seenForA?.has(b)) return true;
+        if (!seenForA) {
+            seenForA = new WeakSet<object>();
+            seen.set(a, seenForA);
+        }
+        seenForA.add(b);
+
         const ak = Object.keys(a);
         const bk = Object.keys(b);
         if (ak.length !== bk.length) return false;
-        for (const k of ak) if (!deepEqual(a[k], b[k])) return false;
+        assertCollectionLength(ak.length, st, "Object");
+        for (const k of ak) {
+            if (!hasOwn(b, k)) return false;
+            if (!deepEqualInner(a[k], b[k], st, depth + 1, seen)) return false;
+        }
         return true;
     }
 
@@ -705,9 +745,55 @@ function isPoisonKey(k: string) {
     return k === "__proto__" || k === "constructor" || k === "prototype";
 }
 
+function isSafeKey(k: string) {
+    return !isPoisonKey(k);
+}
+
+function safeGet(obj: any, key: string): any {
+    if (!isSafeKey(key) || obj == null) return undefined;
+
+    if (Array.isArray(obj) && key === "length") return obj.length;
+    if (typeof obj === "string" && key === "length") return obj.length;
+
+    if ((typeof obj === "object" || typeof obj === "function") && hasOwn(obj, key)) {
+        const value = obj[key];
+        return typeof value === "function" ? undefined : value;
+    }
+
+    return undefined;
+}
+
+function safeIndex(obj: any, index: number): any {
+    if (!Number.isInteger(index) || index < 0) return undefined;
+    if (Array.isArray(obj) || typeof obj === "string") return obj[index];
+    return safeGet(obj, String(index));
+}
+
+function assertCollectionLength(length: number, st: EvalState, label: string) {
+    if (length > st.opts.maxCollectionLength) {
+        throw new CelError(`${label} too large (>${st.opts.maxCollectionLength})`);
+    }
+}
+
+function assertStringLength(length: number, st: EvalState, label: string) {
+    if (length > st.opts.maxStringLength) {
+        throw new CelError(`${label} too long (>${st.opts.maxStringLength})`);
+    }
+}
+
+function assertRegexInputLength(length: number, st: EvalState) {
+    if (length > st.opts.maxRegexInputLength) {
+        throw new CelError(`Regex input too long (>${st.opts.maxRegexInputLength})`);
+    }
+}
+
+function hasOwn(obj: object, key: string) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
 /* ------------------------------ Function allowlist ------------------------ */
 
-function callFunction(name: string | undefined, _receiver: any, args: any[], pos: number): any {
+function callFunction(name: string | undefined, _receiver: any, args: any[], pos: number, st: EvalState): any {
     if (!name) throw new CelError("Missing function name", pos);
 
     switch (name) {
@@ -750,7 +836,10 @@ function callFunction(name: string | undefined, _receiver: any, args: any[], pos
 
         case "contains": {
             const a = args[0], b = args[1];
-            if (Array.isArray(a)) return a.some((x) => deepEqual(x, b));
+            if (Array.isArray(a)) {
+                assertCollectionLength(a.length, st, "Array");
+                return a.some((x) => deepEqual(x, b, st));
+            }
             if (typeof a === "string") return typeof b === "string" ? a.includes(b) : false;
             return false;
         }
@@ -758,7 +847,9 @@ function callFunction(name: string | undefined, _receiver: any, args: any[], pos
         case "containsAny": {
             const a = args[0], b = args[1];
             if (!Array.isArray(a) || !Array.isArray(b)) return false;
-            return b.some((x) => a.some((y) => deepEqual(y, x)));
+            assertCollectionLength(a.length, st, "Array");
+            assertCollectionLength(b.length, st, "Array");
+            return b.some((x) => a.some((y) => deepEqual(y, x, st)));
         }
 
         case "startsWith": {
@@ -774,14 +865,17 @@ function callFunction(name: string | undefined, _receiver: any, args: any[], pos
         case "matches": {
             const s = args[0], re = args[1];
             if (typeof s !== "string" || typeof re !== "string") return false;
-            const r = new RegExp(re);
+            assertRegexInputLength(s.length, st);
+            const r = compileSafeRegex(re, "", st, pos);
             return r.test(s);
         }
 
         case "regexReplace": {
             const s = args[0], re = args[1], repl = args[2];
             if (typeof s !== "string" || typeof re !== "string" || typeof repl !== "string") return s;
-            const r = new RegExp(re, "g");
+            assertRegexInputLength(s.length, st);
+            assertStringLength(repl.length, st, "Replacement");
+            const r = compileSafeRegex(re, "g", st, pos);
             return s.replace(r, repl);
         }
 
@@ -795,16 +889,44 @@ function callFunction(name: string | undefined, _receiver: any, args: any[], pos
         case "join": {
             const arr = args[0], sep = args[1] ?? ",";
             if (!Array.isArray(arr)) return typeof arr === "string" ? arr : "";
+            assertCollectionLength(arr.length, st, "Array");
             return arr.map((x) => String(x)).join(String(sep));
         }
 
         case "split": {
             const s = args[0], sep = args[1] ?? ",";
             if (typeof s !== "string") return [];
+            assertStringLength(s.length, st, "String");
             return s.split(String(sep));
         }
 
         default:
             throw new CelError(`Function not allowed: ${name}`, pos);
+    }
+}
+
+function compileSafeRegex(pattern: string, flags: string, st: EvalState, pos: number): RegExp {
+    if (pattern.length > st.opts.maxRegexPatternLength) {
+        throw new CelError(`Regex pattern too long (>${st.opts.maxRegexPatternLength})`, pos);
+    }
+    assertSafeRegexPattern(pattern, pos);
+
+    try {
+        return new RegExp(pattern, flags);
+    } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        throw new CelError(`Invalid regex: ${message}`, pos);
+    }
+}
+
+function assertSafeRegexPattern(pattern: string, pos: number) {
+    if (/\\[1-9]/.test(pattern) || /\\k<[^>]+>/.test(pattern)) {
+        throw new CelError("Unsafe regex: backreferences are not allowed", pos);
+    }
+
+    const groupWithQuantifiedTokenThenQuantifier = /\((?:[^()\\]|\\.)*[+*](?:[^()\\]|\\.)*\)\s*(?:[+*]|\{\d+(?:,\d*)?\})/;
+    const quantifiedAlternationGroup = /\((?:[^()\\]|\\.)*\|(?:[^()\\]|\\.)*\)\s*(?:[+*]|\{\d+(?:,\d*)?\})/;
+    if (groupWithQuantifiedTokenThenQuantifier.test(pattern) || quantifiedAlternationGroup.test(pattern)) {
+        throw new CelError("Unsafe regex: nested or ambiguous repetition is not allowed", pos);
     }
 }

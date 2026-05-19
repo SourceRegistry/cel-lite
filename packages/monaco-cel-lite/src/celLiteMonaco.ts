@@ -79,13 +79,13 @@ const DEFAULT_FUNCS: CelLiteFunctionSig[] = [
     {
         name: "matches",
         detail: "matches(s, regex) -> bool",
-        documentation: "Regex test (JS RegExp).",
+        documentation: "Guarded regex test (JS RegExp with CEL-lite safety limits).",
         params: ["s", "regex"]
     },
     {
         name: "regexReplace",
         detail: "regexReplace(s, regex, repl) -> string",
-        documentation: "Regex replace (global).",
+        documentation: "Guarded regex replace (global JS RegExp with CEL-lite safety limits).",
         params: ["s", "regex", "repl"]
     },
 

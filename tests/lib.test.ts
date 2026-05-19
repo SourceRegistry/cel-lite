@@ -75,6 +75,13 @@ describe("CEL-lite: arrays, access", () => {
         expect(compileCel("obj.constructor").eval(ctx)).toBe(undefined);
         expect(compileCel("obj.prototype").eval(ctx)).toBe(undefined);
     });
+
+    it("blocks poison keys and inherited values at the root", () => {
+        expect(compileCel("__proto__").eval({})).toBe(undefined);
+        expect(compileCel("constructor").eval({})).toBe(undefined);
+        expect(compileCel("__proto__.toString").eval({})).toBe(undefined);
+        expect(compileCel("toString").eval({})).toBe(undefined);
+    });
 });
 
 describe("CEL-lite: operators", () => {
@@ -111,6 +118,8 @@ describe("CEL-lite: operators", () => {
 
         expect(compileCel("'k' in obj").eval({ obj: { k: 1 } })).toBe(true);
         expect(compileCel("'z' in obj").eval({ obj: { k: 1 } })).toBe(false);
+        expect(compileCel("'toString' in obj").eval({ obj: { k: 1 } })).toBe(false);
+        expect(compileCel("'__proto__' in obj").eval({ obj: { k: 1 } })).toBe(false);
     });
 });
 
@@ -166,6 +175,14 @@ describe("CEL-lite: functions", () => {
         expect(compileCel("endsWith('hello','lo')").eval({})).toBe(true);
         expect(compileCel("matches('abc123','^abc')").eval({})).toBe(true);
         expect(compileCel("regexReplace('a-b-c','-','_')").eval({})).toBe("a_b_c");
+    });
+
+    it("rejects invalid and unsafe regex patterns", () => {
+        expect(() => compileCel("matches('abc','[')").eval({})).toThrow(CelError);
+        expect(() => compileCel("matches('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!','^(a+)+$')").eval({}))
+            .toThrowError(/Unsafe regex/);
+        expect(() => compileCel("matches('abc','a')", { maxRegexInputLength: 2 }).eval({}))
+            .toThrowError(/Regex input too long/);
     });
 
     it("coalesce/join/split", () => {
@@ -232,6 +249,25 @@ describe("CEL-lite: limits & errors", () => {
         const expr = "lower(".repeat(depth) + "'x'" + ")".repeat(depth);
         const prog = compileCel(expr, { maxCallDepth: 20 });
         expect(() => prog.eval({})).toThrowError(/Max call depth exceeded/i);
+    });
+
+    it("handles cyclic values during equality checks", () => {
+        const a: any = { name: "a" };
+        const b: any = { name: "a" };
+        a.self = a;
+        b.self = b;
+
+        expect(compileCel("a == b").eval({ a, b })).toBe(true);
+    });
+
+    it("enforces collection and comparison limits", () => {
+        expect(() => compileCel("contains(arr, 1)", { maxCollectionLength: 2 }).eval({ arr: [1, 2, 3] }))
+            .toThrowError(/Array too large/);
+
+        expect(() => compileCel("a == b", { maxCompareDepth: 0 }).eval({
+            a: { nested: { value: 1 } },
+            b: { nested: { value: 1 } },
+        })).toThrowError(/Max compare depth exceeded/);
     });
 
     it("throws helpful parse errors", () => {
