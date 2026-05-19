@@ -84,7 +84,7 @@ jobs:
         run: npm ci
 
       - name: Install release tooling
-        run: npm install --no-save --no-package-lock semantic-release @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/git @semantic-release/npm @semantic-release/release-notes-generator
+        run: npm install --no-save --no-package-lock semantic-release @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/git @semantic-release/npm @semantic-release/release-notes-generator node-gyp
 
       - name: Build root package
         run: npm run build
@@ -93,11 +93,11 @@ jobs:
         run: npm --workspace @sourceregistry/monaco-cel-lite run build
 
       - name: Release root package
-        run: npx semantic-release
+        run: ./node_modules/.bin/semantic-release
 
       - name: Release Monaco package
         working-directory: packages/monaco-cel-lite
-        run: npx semantic-release
+        run: ../../node_modules/.bin/semantic-release
 
   deploy-docs:
     name: Deploy Docs
