@@ -16,6 +16,11 @@
     "dist"
   ],
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SourceRegistry/cel-lite",
+    "directory": "packages/monaco-cel-lite"
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SourceRegistry/cel-lite.git"
+    "url": "https://github.com/SourceRegistry/cel-lite"
   },
   "keywords": [
     "CEL",
@@ -78,7 +78,17 @@
     ],
     "tagFormat": "@sourceregistry/cel-lite-v${version}",
     "plugins": [
-      "@semantic-release/commit-analyzer",
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "releaseRules": [
+            {
+              "scope": "monaco-cel-lite",
+              "release": false
+            }
+          ]
+        }
+      ],
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
       [
