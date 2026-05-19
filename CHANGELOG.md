@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/cel-lite-v1.1.1...@sourceregistry/cel-lite-v1.1.2) (2026-05-19)
+
+
+### Bug Fixes
+
+* harden evaluator and refresh release tooling ([1f41036](https://github.com/SourceRegistry/cel-lite/commit/1f41036b97db20914bf9c464606154aeffc27e04))
+
 ## [1.1.1](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/cel-lite-v1.1.0...@sourceregistry/cel-lite-v1.1.1) (2026-01-27)
 
 
