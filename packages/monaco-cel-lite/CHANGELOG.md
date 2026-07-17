@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/monaco-cel-lite-v1.1.3...@sourceregistry/monaco-cel-lite-v1.1.4) (2026-07-17)
+
+
+### Bug Fixes
+
+* update to latest version of the monaco editor ([bffb1de](https://github.com/SourceRegistry/cel-lite/commit/bffb1de4c490129a384b084798f133f01e7b3617))
+
 ## [1.1.3](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/monaco-cel-lite-v1.1.2...@sourceregistry/monaco-cel-lite-v1.1.3) (2026-05-19)
 
 
