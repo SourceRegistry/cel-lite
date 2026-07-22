@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/cel-lite-v1.1.3...@sourceregistry/cel-lite-v1.2.0) (2026-07-22)
+
+
+### Features
+
+* add distinct collection helper ([94e6fda](https://github.com/SourceRegistry/cel-lite/commit/94e6fdad6dca21ee098f11431161b7d7b433b426))
+
 ## [1.1.3](https://github.com/SourceRegistry/cel-lite/compare/@sourceregistry/cel-lite-v1.1.2...@sourceregistry/cel-lite-v1.1.3) (2026-07-17)
 
 
