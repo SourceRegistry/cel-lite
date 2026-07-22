@@ -46,6 +46,12 @@ const DEFAULT_FUNCS: CelLiteFunctionSig[] = [
         documentation: "Collects args into an array (single arg is wrapped if needed).",
         params: ["a", "b", "..."]
     },
+    {
+        name: "distinct",
+        detail: "distinct(array) -> any[]",
+        documentation: "Removes duplicate values while preserving first-seen order.",
+        params: ["array"]
+    },
 
     {name: "lower", detail: "lower(s) -> string", documentation: "Lowercase string.", params: ["s"]},
     {name: "upper", detail: "upper(s) -> string", documentation: "Uppercase string.", params: ["s"]},

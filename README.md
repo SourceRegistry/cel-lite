@@ -151,6 +151,7 @@ For objects, `in` checks own properties only:
 | `first(x)`                 | First array element, otherwise the value itself  |
 | `last(x)`                  | Last array element, otherwise the value itself   |
 | `collect(a, b, ...)`       | Collects arguments into an array                 |
+| `distinct(array)`          | Removes duplicate values, preserving first-seen order |
 | `lower(s)` / `upper(s)`    | String casing                                    |
 | `trim(s)`                  | Trim whitespace                                  |
 | `contains(a, b)`           | Array membership or string containment           |

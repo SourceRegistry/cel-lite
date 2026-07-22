@@ -200,6 +200,17 @@ describe("CEL-lite: functions", () => {
         expect(compileCel("collect(['z'])").eval({})).toEqual(["z"]);
     });
 
+    it("distinct()", () => {
+        expect(compileCel("distinct(values)").eval({values: ["CMI", "KCCR", "CMI", "KCCR"]}))
+            .toEqual(["CMI", "KCCR"]);
+        expect(compileCel("distinct(values)").eval({values: [1, "1", 1, "1"]}))
+            .toEqual([1, "1"]);
+        expect(compileCel("distinct(values)").eval({values: [{id: 1}, {id: 1}, {id: 2}]}))
+            .toEqual([{id: 1}, {id: 2}]);
+        expect(compileCel("distinct(missing)").eval({})).toEqual([]);
+        expect(compileCel("distinct('value')").eval({})).toEqual([]);
+    });
+
     it("rejects unknown functions", () => {
         expect(() => compileCel("nope(1)").eval({})).toThrowError(/Function not allowed/);
     });
@@ -262,6 +273,9 @@ describe("CEL-lite: limits & errors", () => {
 
     it("enforces collection and comparison limits", () => {
         expect(() => compileCel("contains(arr, 1)", { maxCollectionLength: 2 }).eval({ arr: [1, 2, 3] }))
+            .toThrowError(/Array too large/);
+
+        expect(() => compileCel("distinct(arr)", {maxCollectionLength: 2}).eval({arr: [1, 2, 3]}))
             .toThrowError(/Array too large/);
 
         expect(() => compileCel("a == b", { maxCompareDepth: 0 }).eval({

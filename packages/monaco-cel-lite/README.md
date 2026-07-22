@@ -130,7 +130,7 @@ When `functions` is provided, it replaces the built-in list used for completion,
 The default metadata covers the built-in functions from `@sourceregistry/cel-lite`:
 
 ```txt
-has, exists, size, first, collect,
+has, exists, size, first, collect, distinct,
 lower, upper, trim,
 contains, containsAny,
 startsWith, endsWith,

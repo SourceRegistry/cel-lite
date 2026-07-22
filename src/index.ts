@@ -827,6 +827,19 @@ function callFunction(name: string | undefined, _receiver: any, args: any[], pos
             
             return args;
         }
+        case "distinct": {
+            const values = args[0];
+            if (!Array.isArray(values)) return [];
+            assertCollectionLength(values.length, st, "Array");
+
+            const result: any[] = [];
+            for (const value of values) {
+                if (!result.some((existing) => deepEqual(existing, value, st))) {
+                    result.push(value);
+                }
+            }
+            return result;
+        }
         case "lower":
             return typeof args[0] === "string" ? args[0].toLowerCase() : args[0];
         case "upper":
